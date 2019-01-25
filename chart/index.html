@@ -1,0 +1,199 @@
+<html>
+    <head>
+        <title>Chart</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div id="el">
+            <div class="row">
+                <div class="col-md-12">
+                    <input class="form-control" v-model="url.getXML">
+                    <button @click="createData()" class="btn btn-info form-control">get</button>
+                </div>
+            </div>
+
+
+            <div v-if="loadBlock.length" style="position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(51, 51, 51, 0.5); z-index: 9999999">
+                <div style="height: 100px; width: 10%; top: 35%; left: 45%; position: absolute" align="center">
+                    <img height="100" width="100" src="/csi-stat-static/assets/global/img/spinner-gif-transparent-background-13.gif">
+                    <h2 style="color: white">Загрузка</h2>
+                </div>
+            </div>
+        </div>
+
+
+
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+
+        <script>
+
+            let xmlData = [];
+
+            let app = new Vue({
+                el: '#el',
+                data: function () {
+                    return {
+
+                        loadBlock: [],
+                        url: {
+                            getXML: "odata/ShowcaseDataFull_44",
+                        },
+                        waiting: false,
+
+                        chart: {
+                            type: "pie",
+                            data: {
+                                "label": "",
+                                "labels": [],
+                                "datasets": [],
+                            }
+                        },
+                        chartColors: [
+                            "255, 99, 132",
+                            "255, 159, 64",
+                            "255, 205, 86",
+                            "75, 192, 192",
+                            "54, 162, 235",
+                            "153, 102, 255",
+                            "201, 203, 207"
+                        ],
+
+                        dicts: {},
+                        dictsMeta: {},
+                    };
+                },
+        
+                watch: {
+        
+                },
+        
+                computed: {
+                    
+                },
+        
+                methods: {
+
+                    showLoadBlock: function () {
+                        this.loadBlock.push("");
+                    },
+
+                    closeLoadBlock: function () {
+                        if (this.loadBlock.length) {
+                            this.loadBlock.splice(0, 1);
+                        }
+                    },
+
+                    createData: async function () {
+                        if (this.waiting) return alert("Жду ответ запроса");
+
+                        this.showLoadBlock();
+
+                        this.waiting = true;
+                        xmlData = [];
+                        // spendData = [];
+                        // ndxOld = null;
+                        this.dicts = {};
+                        this.dictsMeta = {};
+                        // document.getElementById("chartContainer").innerHTML = "";
+
+                        xmlData = await this.getXML();
+                        console.log(new Date().getMinutes(), new Date().getSeconds(), new Date().getMilliseconds());
+                        this.dataToDicts();
+                        // this.testData();
+                        this.getDictsMeta();
+                        // this.chartContainer();
+                        await new Promise(resolve => setTimeout(() => { resolve({}) }, 1000));
+                        // ndxOld = crossfilter(spendData);
+                        // this.chartOptions();
+                        // dc.renderAll();
+                        console.log(new Date().getMinutes(), new Date().getSeconds(), new Date().getMilliseconds());
+                        this.waiting = false;
+
+                        this.closeLoadBlock();
+                    },
+
+                    getXML: function () {
+                        return this.$http.get(this.url.getXML).then(
+                            function (response) {
+                                let res = [];
+                                if (Array.isArray(response.data)) {
+                                    res = response.data;
+                                } else { // поиск массива
+                                    if (typeof response.data === typeof {}) {
+                                        for (let key in response.data) {
+                                            if (
+                                                response.data.hasOwnProperty(key) &&
+                                                Array.isArray(response.data[key])
+                                            ) {
+                                                res = response.data[key];
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                return res;
+                            }, function (error) {
+                                console.log(error)
+                            }
+                        );
+                    },
+
+                    /* Создает справочники */
+                    dataToDicts: function () {
+                        /* Собирает Dicts */
+                        let dicts = {};
+                        xmlData.forEach((item) => {
+                            for (let key in item) {
+                                if (item.hasOwnProperty(key)) {
+                                    if (!dicts[key]) {
+                                        dicts[key] = [];
+                                    }
+                                    dicts[key].push(item[key]);
+                                }
+                            }
+                        });
+
+                        /* Удаляет дубли Dicts */
+                        for (let key in dicts) {
+                            if (dicts.hasOwnProperty(key)) {
+                                for (let i = 0; i < dicts[key].length; i++) {
+                                    for (let j = 0; j < dicts[key].length; j++) {
+                                        if (dicts[key][i] === dicts[key][j] && i !== j) {
+                                            dicts[key].splice(j, 1);
+                                            j--;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        this.dicts = dicts;
+                    },
+
+                    /* Настройки / статистика справочников */
+                    getDictsMeta: function () {
+                        let meta = {};
+                        for (let key in this.dicts) {
+                            if (this.dicts.hasOwnProperty(key)) {
+                                meta[key] = {};
+                                meta[key].type = this.chartType(key);
+                                meta[key].fromTo = this.chartNumbetMinMax(this.dicts[key]);
+                                meta[key].key = key;
+                                meta[key].count = this.dicts[key].length;
+                            }
+                        }
+                        this.dictsMeta = meta;
+                    },
+
+
+                },
+        
+                mounted: function () {
+                    
+                }
+        
+            });
+        </script>
+    </body>
+</html>
