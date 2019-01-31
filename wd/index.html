@@ -1,134 +1,149 @@
+<!doctype html>
+<!--[if lt IE 7 ]> <html class="ie ie6 ie-lt10 ie-lt9 ie-lt8 ie-lt7 no-js" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7 ie-lt10 ie-lt9 ie-lt8 no-js" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8 ie-lt10 ie-lt9 no-js" lang="en"> <![endif]-->
+<!--[if IE 9 ]><html class="ie ie9 ie-lt10 no-js" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!-->
 <html>
     <head>
         <title>wedding</title>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/left-nav-style.css">
+
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
-        <style>
-            .block-1 {
-                width: 100%; 
-                height: 100vh; 
-                background: url(img/fon1.jpg); 
-                background-size: 100%
-            }
-            .block-1 div {
-                margin: 0 30% 0 30%;
-                padding-top: 20%;
-                width: 40%;
-                color: gold;
-                font-size: x-large;
-            }
-        </style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Marck+Script">
+
     </head>
-    <body>
-        <div id="el" class="block-1">
-            <div align="center">
-                {{autoDate}}
-            </div>
+    <body style="font-family: 'Marck Script', cursive;">
         
+        <div id="el">
+            <input type="checkbox" id="nav-toggle" hidden>
+            <nav class="nav-menu">
+                <label for="nav-toggle" class="nav-toggle" onclick></label>
+                <h2 class="logo"> 
+                    <a href="#">Нуржан + Гульзада</a> 
+                </h2>
+                <ul>
+                    <li v-for="page in menu" @click="loadPage(page.code)"><a href="#1">{{page.text}}</a>
+                </ul>
+            </nav>
+    
+            <div v-if="currentPage === 'home'">
+                <div class="block-1">
+                    <div class="block-1-1">
+                        <div class="block-1-1-1" align="center">
+                            Нуржан + Гульзада
+                        </div>
+                        <br>
+                        <div class="block-1-1-1" align="center">
+                            {{autoDate}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-show="currentPage === 'location'">
+                <div class="block-2">
+                    <div class="block-2-1" align="center">
+                            <div class="block-2-1-1" >
+                                Месторасположение
+                            </div>
+                            <!-- <div class="block-2-1-2" align="center"> -->
+                                <iframe src="https://yandex.kz/map-widget/v1/-/CBRpFOrOpB" width="800" height="700" frameborder="1" allowfullscreen="true"></iframe>
+                            <!-- </div> -->
+                    </div>
+                </div>
+            </div>
+            
         </div>
 
-
+        
 
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
         <script>
 
-                let xmlData = [];
-    
-                let app = new Vue({
-                    el: '#el',
-                    data: function () {
-                        return {
-                            test: "test",
+            let xmlData = [];
 
-                            // dayToi: 1549689681823,
-                            dayToi: 1548737194737 + 86400000 + 86400000,
-                            day: new Date().getTime(),
-                            dayMinus: null,
+            let app = new Vue({
+                el: '#el',
+                data: function () {
+                    return {
 
-                            autoDate: ""
+                        currentPage: 'home', 
+                        menu: [
+                            {text: "Главная", code: "home", icon: ""},
+                            {text: "Пригласительное письмо", code: "message", icon: ""},
+                            {text: "Список гостей", code: "guests", icon: ""},
+                            {text: "Галерея", code: "gallery", icon: ""},
+                            {text: "Программа", code: "program", icon: ""},
+                            {text: "Месторасположение", code: "location", icon: ""},
+                            {text: "Контакты", code: "contacts", icon: ""},
+                        ],
+                        // dayToi: 1549689681823,
+                        dayToi: 1548737194737 + 86400000 + 86400000 + 86400000, // день свадьбы
+                        day: new Date().getTime(), // сегодня
+                        dayMinus: null, // оталось дней
+                        autoDate: "", // результат оставшихся дней
 
-                        };
+                    };
+                },
+
+                watch: {
+
+                },
+                computed: {
+
+                },
+                methods: {
+                    start: function () {
+                        this.getDayMinus();
                     },
-            
-                    watch: {
-            
-                    },
-                    computed: {
-          
-                    },
-                    methods: {
-                        getTest: function () {
-                            let date = new Date(this.day);
-                            let year = date.getFullYear();
-                            let month = date.getMonth() + 1;
-                            let day = date.getDate();
 
-                            if (month.toString().length === 1) {
-                                month = "0" + month;
+                    getDayMinus: function () {
+                        this.dayMinus = this.dayToi - this.day;
+                        setInterval(() => {
+                            this.dayMinus = this.dayMinus - 1000;
+                            let allSeconds = this.dayMinus.toString().substring(0, this.dayMinus.toString().length - 3);
+                            let seconds = allSeconds % 60;
+                            let allMinutes = Math.trunc(allSeconds / 60);
+                            let minutes = allMinutes % 60;
+                            let allHours = Math.trunc(allMinutes / 60);
+                            let hours = allHours % 24;
+                            let allDay = Math.trunc(allHours / 24);
+                            console.log("allSeconds = " + allSeconds, "seconds = " + seconds, "allMinutes = " + allMinutes, "minutes = " + minutes, "allHours = " + allHours, "hours = " + hours, "allDay = " + allDay);
+                            this.autoDate = "Осталось "
+                            if (allDay) {
+                                this.autoDate += allDay + " дней "
                             }
-                            if (day.toString().day === 1) {
-                                day = "0" + day;
+                            if (hours) {
+                                this.autoDate += hours + " часов "
                             }
-
-                            let dayOfMonth = date.getDay();
-
-                            console.log(date);
-                            console.log(year);
-                            console.log(month);
-                            console.log(day);
-                            console.log(date.getTime());
-
-                            this.dayMinus = this.dayToi - this.day;
-                            this.getDayMinus();
-                        },
-
-                        getDayMinus: function () {
-                            setInterval(() => {
-                                this.dayMinus = this.dayMinus - 1000;
-
-
-                                let allSeconds = this.dayMinus.toString().substring(0, this.dayMinus.toString().length - 3);
-                                let seconds = allSeconds % 60;
-                                let allMinutes = Math.trunc(allSeconds / 60);
-                                let minutes = allMinutes % 60;
-                                let allHours = Math.trunc(allMinutes / 60);
-                                let hours = allHours % 24;
-                                let allDay = Math.trunc(allHours / 24);
-                                console.log("allSeconds = " + allSeconds);
-                                console.log("seconds = " + seconds);
-                                console.log("allMinutes = " + allMinutes);
-                                console.log("minutes = " + minutes);
-                                console.log("allHours = " + allHours);
-                                console.log("hours = " + hours);
-                                console.log("allDay = " + allDay);
-                                
-                                this.autoDate = "Осталось "
-                                if (allDay) {
-                                    this.autoDate += allDay + " дней "
-                                }
-                                if (hours) {
-                                    this.autoDate += hours + " часов "
-                                }
-                                if (minutes) {
-                                    this.autoDate += minutes + " минут "
-                                }
-                                if (seconds) {
-                                    this.autoDate += seconds + " секунд "
-                                }
-
-
-
-                                // this.autoDate = date.getFullYear() + " " + date.getMonth() + " " + date.getDate() + " " + date.getHours() + " " + date.getMinutes() + " " + date.getSeconds();   
-                                }, 1000);
-                        },
+                            if (minutes) {
+                                this.autoDate += minutes + " минут "
+                            }
+                            if (seconds) {
+                                this.autoDate += seconds + " секунд "
+                            }
+                        }, 1000);
                     },
-            
-                    mounted: function () {
-                        this.getTest();
+
+                    loadPage: function (code) {
+                        console.log(code);
+                        this.currentPage = code;
                     }
-            
-                });
-            </script>
+
+                },
+
+                mounted: function () {
+                    this.start();
+                }
+
+            });
+        </script>
     
     </body>
 </html>
