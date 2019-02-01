@@ -12,6 +12,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <link rel="stylesheet" href="css/style.css">
         <link rel="stylesheet" href="css/left-nav-style.css">
+        <link rel="stylesheet" href="css/open-iconic-bootstrap.css">
 
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Marck+Script">
@@ -20,6 +21,7 @@
     <body style="font-family: 'Marck Script', cursive;">
         
         <div id="el">
+            <!-- MENU -->
             <input type="checkbox" id="nav-toggle" hidden>
             <nav class="nav-menu">
                 <label for="nav-toggle" class="nav-toggle" onclick></label>
@@ -30,38 +32,84 @@
                     <li v-for="page in menu" @click="loadPage(page.code)"><a href="#1">{{page.text}}</a>
                 </ul>
             </nav>
+            <!-- / MENU -->
     
+            <!-- HOME -->
             <div v-if="currentPage === 'home'">
-                <div class="block-1">
+                <div class="block-home">
                     <div class="block-1-1">
                         <div class="block-1-1-1" align="center">
-                            Нуржан + Гульзада
+                            <h1>Нуржан + Гульзада</h1>
                         </div>
                         <br>
                         <div class="block-1-1-1" align="center">
-                            {{autoDate}}
+                            <h2>{{autoDate}}</h2>
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- / HOME -->
 
-            <div v-show="currentPage === 'location'">
-                <div class="block-2">
-                    <div class="block-2-1" align="center">
-                            <div class="block-2-1-1" >
-                                Месторасположение
-                            </div>
-                            <!-- <div class="block-2-1-2" align="center"> -->
-                                <iframe src="https://yandex.kz/map-widget/v1/-/CBRpFOrOpB" width="800" height="700" frameborder="1" allowfullscreen="true"></iframe>
-                            <!-- </div> -->
+            <!-- GUESTS -->
+            <div v-if="currentPage === 'guests'">
+                <div class="block-guests">
+                    <div class="block-guests-1" align="center">
+                        <div class="block-guests-1-1">
+                            Список гостей
+                        </div>
+                        <div class="col-md-12" style="background-color: azure; border-radius: 10px; color: black;">
+                            <table class="table table-striped table-bordered table-advance table-hover">
+                                <tr>
+                                    <td colspan="2" align="center"> 
+                                        <a v-if="guests.index" @click="guests.index--"><span class="oi oi-arrow-circle-left"></span></a> 
+                                        {{guests.page[guests.index].name}}
+                                        <a v-if="guests.index < (guests.page.length - 1)" @click="guests.index++"><span class="oi oi-arrow-circle-right"></span></a> 
+                                    </td>
+                                </tr>
+                                <tr v-for="(guest, index) in guests.page[guests.index].person">
+                                    <td>{{index + 1}}</td>
+                                    <td>{{guest}}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <!-- / GUESTS -->
+
+            <!-- GALLERY -->
+            <div v-if="currentPage === 'gallery'">
+                <div class="block-gallery">
+                    <div class="block-gallery-1" align="center">
+                        <div class="block-gallery-1-1">
+                            Галерея
+                        </div>
+                        <img style="width: 100%" :src="slider.images[slider.index].src">
                     </div>
                 </div>
             </div>
+            <!-- / GALLERY -->
+
+            <!-- LOCATION -->
+            <div v-show="currentPage === 'location'">
+                <div class="block-location">
+                    <div class="block-2-1" align="center">
+                        <div class="block-2-1-1">
+                            Месторасположение
+                        </div>
+                        <iframe src="https://yandex.kz/map-widget/v1/-/CBRpFOrOpB" width="100%" height="700" frameborder="1" allowfullscreen="true"></iframe>
+                    </div>
+                </div>
+            </div>
+            <!-- / LOCATION -->
             
         </div>
 
         
 
+        <script type="text/javascript" src="js/script.js"></script>
+        <!-- <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script> -->
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
         <script>
@@ -73,36 +121,44 @@
                 data: function () {
                     return {
 
-                        currentPage: 'home', 
-                        menu: [
-                            {text: "Главная", code: "home", icon: ""},
-                            {text: "Пригласительное письмо", code: "message", icon: ""},
-                            {text: "Список гостей", code: "guests", icon: ""},
-                            {text: "Галерея", code: "gallery", icon: ""},
-                            {text: "Программа", code: "program", icon: ""},
-                            {text: "Месторасположение", code: "location", icon: ""},
-                            {text: "Контакты", code: "contacts", icon: ""},
-                        ],
+                        currentPage: 'guests', 
+                        menu: MENU,
                         // dayToi: 1549689681823,
                         dayToi: 1548737194737 + 86400000 + 86400000 + 86400000, // день свадьбы
                         day: new Date().getTime(), // сегодня
                         dayMinus: null, // оталось дней
                         autoDate: "", // результат оставшихся дней
 
+                        slider: {
+                            index: 0,
+                            images: [
+                                {text: "", src: "img/slider1.jpg"},
+                                {text: "", src: "img/slider2.jpg"},
+                                {text: "", src: "img/slider3.jpg"},
+                            ]
+                        },
+
+                        guests: GUESTS, // список гостей
+
+
                     };
                 },
 
-                watch: {
-
-                },
-                computed: {
-
-                },
+                watch: {},
+                computed: {},
                 methods: {
                     start: function () {
                         this.getDayMinus();
+                        this.startSlider();
                     },
 
+                    // меню
+                    loadPage: function (code) {
+                        console.log(code);
+                        this.currentPage = code;
+                    },
+
+                    // Таймер
                     getDayMinus: function () {
                         this.dayMinus = this.dayToi - this.day;
                         setInterval(() => {
@@ -131,9 +187,15 @@
                         }, 1000);
                     },
 
-                    loadPage: function (code) {
-                        console.log(code);
-                        this.currentPage = code;
+                    // Slider
+                    startSlider: function () {
+                        setInterval( () => {
+                            if ((this.slider.index + 1) === this.slider.images.length) {
+                                this.slider.index = 0
+                            } else {
+                                this.slider.index++;
+                            }
+                        }, 2000);
                     }
 
                 },
