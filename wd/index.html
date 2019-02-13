@@ -49,6 +49,40 @@
                 </div>
             </div>
             <!-- / HOME -->
+            <div v-if="currentPage === 'message'">
+                <div class="block-message">
+                    <div class="block-message-1">
+                        <div class="block-message-1-1" align="center">
+                            Пригласительное письмо
+                        </div>
+                        <div class="block-message-1-1">
+                            <div class="col-md-12">
+                                <p>
+                                    Дорогие (___)
+                                </p>
+                                <p>
+                                    Вот и наступил самый долгожданный день в нашей жизни, который мы хотим разделить вместе с вами. Мы будет очень
+                                    рады видеть вас на нашей свадьбе, которая состоится (дата) в (время).
+                                </p>
+                                <p>
+                                    Торжественная регистрация брака пройдет по адресу (___) в (время)
+                                </p>
+                                <p>
+                                    Банкетная часть начнется в (время) в ресторане «___», по адресу (___)
+                                </p>
+                                <p>
+                                    Банкетная часть начнется в (время) в ресторане «___», по адресу (___)
+                                </p>
+                                <p>
+                                    С уважением (имена молодоженов)
+                                </p>
+                      
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- GUESTS -->
             <div v-if="currentPage === 'guests'">
@@ -91,6 +125,35 @@
             </div>
             <!-- / GALLERY -->
 
+            <!-- PROGRAM -->
+            <div v-if="currentPage === 'program'">
+                <div class="block-program">
+                    <div class="block-program-1" align="center">
+                        <div class="block-program-1-1">
+                            Программа
+                        </div>
+            
+                        <div class="col-md-12" style="background-color: azure; border-radius: 10px; color: black;">
+                            <table class="table table-striped table-bordered table-advance table-hover">
+                                <tr>
+                                    <td>№</td>
+                                    <th>Время</th>
+                                    <th>Название</th>
+                                    <th>Описание</th>
+                                </tr>
+                                <tr v-for="(prog, index) in program">
+                                    <td>{{index + 1}}</td>
+                                    <td>{{prog.time}}</td>
+                                    <td>{{prog.name}}</td>
+                                    <td>{{prog.description}}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- / PROGRAM -->
+
             <!-- LOCATION -->
             <div v-show="currentPage === 'location'">
                 <div class="block-location">
@@ -121,10 +184,10 @@
                 data: function () {
                     return {
 
-                        currentPage: 'guests', 
+                        currentPage: 'home', 
                         menu: MENU,
                         // dayToi: 1549689681823,
-                        dayToi: 1548737194737 + 86400000 + 86400000 + 86400000, // день свадьбы
+                        dayToi: 1548737194737 + 86400000 * 50, // день свадьбы
                         day: new Date().getTime(), // сегодня
                         dayMinus: null, // оталось дней
                         autoDate: "", // результат оставшихся дней
@@ -138,13 +201,18 @@
                             ]
                         },
 
+                        program: PROGRAM,
                         guests: GUESTS, // список гостей
-
+                        testWheel: 0,
 
                     };
                 },
 
-                watch: {},
+                watch: {
+                    "window.addEventListener": function () {
+                        console.log("qwe");
+                    }
+                },
                 computed: {},
                 methods: {
                     start: function () {
@@ -156,6 +224,24 @@
                     loadPage: function (code) {
                         console.log(code);
                         this.currentPage = code;
+                    },
+
+                    onWheel: function (e) {
+                        e = e || window.event;
+                        // deltaY, detail содержат пиксели
+                        // wheelDelta не дает возможность узнать количество пикселей
+                        // onwheel || MozMousePixelScroll || onmousewheel
+                        var delta = e.deltaY || e.detail || e.wheelDelta;
+                        app.testWheel += delta;
+
+                        if (app.testWheel < 0 || (app.testWheel / 500 + 1) > this.menu.length) {
+                            app.testWheel = 0;
+                        }
+                        if (!(app.testWheel % 500)) {
+                            if (this.menu[app.testWheel / 500].code !== this.currentPage) {
+                                this.currentPage = this.menu[app.testWheel / 500].code;
+                            }
+                        }
                     },
 
                     // Таймер
@@ -205,6 +291,20 @@
                 }
 
             });
+        </script>
+
+
+        <script>
+            if (window.addEventListener) {
+                if ('onwheel' in document)
+                    window.addEventListener("wheel", app.onWheel); // IE9+, FF17+
+                else if ('onmousewheel' in document)
+                    window.addEventListener("mousewheel", app.onWheel); // устаревший вариант события
+                else
+                    window.addEventListener("MozMousePixelScroll", app.onWheel); // Firefox < 17
+            } else { // IE8-
+                window.attachEvent("onmousewheel", app.onWheel);
+            }
         </script>
     
     </body>
