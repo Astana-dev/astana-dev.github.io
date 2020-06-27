@@ -10,7 +10,7 @@
         <script>
             if (document.location.search.indexOf("code") != -1) {
                 let code = document.location.search.split("=")[1]
-                document.getElementById("n").after('<a href="http://88.204.215.234:5000/vkontakte/token/"' + code + '>link</a>')
+                document.getElementById("redirect_link").after('<a href="http://88.204.215.234:5000/vkontakte/token/"' + code + '>link</a>')
                 window.open("http://88.204.215.234:5000/vkontakte/token/" + code);
             } else {
                 document.location.href = "https://oauth.vk.com/authorize?client_id=7318854&redirect_uri=https://astana-dev.github.io/";
