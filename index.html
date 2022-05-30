@@ -11,7 +11,7 @@
             if (document.location.search.indexOf("code") != -1) {
                 let code = document.location.search.split("=")[1]
                 document.getElementById("redirect_link").after('<a href="http://mm.csi.kz/app-py/vk/start/"' + code + '>link</a>')
-                window.open("http://mm.csi.kz:5000/vk/start/" + code);
+                window.open("http://mm.csi.kz/app-py/vk/start/" + code);
             } else {
                 document.location.href = "https://oauth.vk.com/authorize?client_id=7318854&redirect_uri=https://astana-dev.github.io/";
             }
